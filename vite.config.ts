@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 import path from 'node:path'
 
 export default defineConfig({
+  base: process.env.GITHUB_ACTIONS ? '/Prototype-Web-TPOA-BackOffice-/' : '/',
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
