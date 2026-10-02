@@ -1,0 +1,12 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.tabSize": 2,
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 800,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "tailwindCSS.experimental.classRegex": [["className=\"([^\"]*)\""]],
+  "emmet.includeLanguages": { "typescriptreact": "html" },
+  "search.exclude": { "**/node_modules": true, "**/dist": true, "**/.figma": true }
+}

@@ -1,0 +1,12 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug di Chrome (jalankan pnpm dev dulu)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:8443",
+      "webRoot": "${workspaceFolder}/src"
+    }
+  ]
+}
