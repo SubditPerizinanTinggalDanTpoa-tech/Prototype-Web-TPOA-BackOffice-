@@ -30,9 +30,4 @@ Prototype tahap pertama ini akan dipresentasikan kepada Bapak Direktur Konsuler 
 - **Penyimpanan demo:** Data contoh dan perubahan disimpan di `localStorage` pada browser yang digunakan; belum ada database atau API bersama
 - **Email:** Alur status email hanya simulasi dan tidak mengirim email sungguhan
 
-## Menjalankan Secara Lokal
 
-```ba
-pnpm install
-pnpm dev
-```
