@@ -118,6 +118,7 @@ export function PartnerApprovalPage() {
 }
 
 function PartnerApprovalForm({ invitation }: { invitation: RecommendationInvitation }) {
+  const [previousSubmission] = useLocal<PartnerSubmission | null>(`tpoa:partner-submission:${invitation.orgId}:${invitation.id}`, null)
   const [decision, setDecision] = useState<"setuju" | "tolak">("setuju")
   const [signerName, setSignerName] = useState("")
   const [signerTitle, setSignerTitle] = useState("")
@@ -140,11 +141,22 @@ function PartnerApprovalForm({ invitation }: { invitation: RecommendationInvitat
       submittedAt: Date.now(),
     }
     writeLS(`tpoa:partner-submission:${response.orgId}`, response)
+    writeLS(`tpoa:partner-submission:${response.orgId}:${response.invitationId}`, response)
     writeLS(`tpoa:partner-approval-record:${response.orgId}`, { senderEmail: response.partnerEmail, verifiedByTpoa: false })
     const payload = encodeURIComponent(encodePortalPayload(response))
     window.location.hash = `/surat/persetujuan-kl?submission=${payload}`
   }
   if (!initialOrgs.some((org) => org.id === invitation.orgId) || Date.now() - invitation.issuedAt > 14 * 24 * 60 * 60 * 1000) return <section className="glass p-5"><h1 className="font-display text-xl">Tautan tidak berlaku</h1><p className="mt-2 text-[13px] text-muted">Undangan tidak ditemukan atau sudah kedaluwarsa. Hubungi TPOA untuk meminta tautan baru.</p></section>
+  if (previousSubmission?.invitationId === invitation.id) return <div className="mx-auto max-w-3xl">
+    <header className="mb-6 border-b border-slate-300/70 pb-5">
+      <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-forest-deep">Tanggapan Terkirim · {invitation.orgName}</div>
+      <h1 className="mt-2 font-display text-[32px] leading-tight">Harap Menunggu</h1>
+      <p className="mt-2 text-[13px] text-muted">Persetujuan untuk surat rekomendasi nomor {invitation.number} sudah dikirim ke TPOA.</p>
+    </header>
+    <section className="glass p-5">
+      <p className="text-[14px] leading-relaxed">Tanggapan dari {invitation.partnerName} telah diterima. Mohon menunggu hasil dan tindak lanjut berikutnya dari TPOA. Formulir ini sudah ditutup dan tidak dapat dikirim ulang.</p>
+    </section>
+  </div>
   return <div className="mx-auto max-w-4xl">
     <header className="mb-6 border-b border-slate-300/70 pb-5">
       <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-forest-deep">Formulir Calon K/L · Balasan TPOA</div>
@@ -198,6 +210,7 @@ function PartnerApprovalInbox({ incomingSubmission }: { incomingSubmission: Part
   useEffect(() => {
     if (!incomingSubmission) return
     writeLS(`tpoa:partner-submission:${incomingSubmission.orgId}`, incomingSubmission)
+    writeLS(`tpoa:partner-submission:${incomingSubmission.orgId}:${incomingSubmission.invitationId}`, incomingSubmission)
     writeLS(`tpoa:active-ingo`, incomingSubmission.orgId)
     writeLS(`tpoa:partner-approval-record:${incomingSubmission.orgId}`, { senderEmail: incomingSubmission.partnerEmail, verifiedByTpoa: false })
     setSubmission(incomingSubmission)
