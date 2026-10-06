@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { initialOrgs } from "./IngoDashboard"
-import { Field, field, REG_EMAIL } from "./Ingo"
+import { Field, field } from "./Ingo"
 import { downloadDeviceFile, readDeviceFile, saveDeviceFile, useLocal, readLS, writeLS, type StoredLocalFile } from "./store"
 
 const templates = {
@@ -122,7 +122,6 @@ function PartnerApprovalForm({ invitation }: { invitation: RecommendationInvitat
   const [signerName, setSignerName] = useState("")
   const [signerTitle, setSignerTitle] = useState("")
   const [statement, setStatement] = useState(`Kami menyetujui surat rekomendasi TPOA nomor ${invitation.number} perihal ${invitation.subject} untuk kerja sama ${invitation.orgName}.`)
-  const [submitted, setSubmitted] = useState(false)
   const canSubmit = Boolean(signerName.trim() && signerTitle.trim() && statement.trim())
   const sendToTpoa = () => {
     if (!canSubmit) return
@@ -142,11 +141,8 @@ function PartnerApprovalForm({ invitation }: { invitation: RecommendationInvitat
     }
     writeLS(`tpoa:partner-submission:${response.orgId}`, response)
     writeLS(`tpoa:partner-approval-record:${response.orgId}`, { senderEmail: response.partnerEmail, verifiedByTpoa: false })
-    const importLink = publicPortalLink(`submission=${encodeURIComponent(encodePortalPayload(response))}`)
-    const mailSubject = `Balasan persetujuan ${response.orgName} · ${invitation.number}`
-    const mailBody = `Yth. Tim TPOA,\n\nBerikut balasan calon K/L atas surat rekomendasi TPOA.\n\nINGO: ${response.orgName}\nCalon K/L: ${response.partnerName}\nNomor surat rekomendasi: ${invitation.number}\nKeputusan: ${response.decision === "setuju" ? "MENYETUJUI" : "MENOLAK"}\nPejabat penandatangan: ${response.signerName}, ${response.signerTitle}\nEmail pengirim: ${response.partnerEmail}\n\nIsi persetujuan/tanggapan:\n${response.statement}\n\nUntuk mengisi data balasan ini ke halaman TPOA, buka tautan impor:\n${importLink}\n\nBila diperlukan tanda tangan basah, lampirkan dokumen yang telah ditandatangani pada email ini.\n\nHormat kami,\n${response.signerName}\n${response.signerTitle}\n${response.partnerName}`
-    setSubmitted(true)
-    window.location.href = `mailto:${REG_EMAIL}?subject=${encodeURIComponent(mailSubject)}&body=${encodeURIComponent(mailBody)}`
+    const payload = encodeURIComponent(encodePortalPayload(response))
+    window.location.hash = `/surat/persetujuan-kl?submission=${payload}`
   }
   if (!initialOrgs.some((org) => org.id === invitation.orgId) || Date.now() - invitation.issuedAt > 14 * 24 * 60 * 60 * 1000) return <section className="glass p-5"><h1 className="font-display text-xl">Tautan tidak berlaku</h1><p className="mt-2 text-[13px] text-muted">Undangan tidak ditemukan atau sudah kedaluwarsa. Hubungi TPOA untuk meminta tautan baru.</p></section>
   return <div>
@@ -155,7 +151,7 @@ function PartnerApprovalForm({ invitation }: { invitation: RecommendationInvitat
       <h1 className="mt-2 font-display text-[32px] leading-tight">Persetujuan Surat Rekomendasi</h1>
       <p className="mt-2 text-[13px] text-muted">Untuk {invitation.partnerName} · INGO: {invitation.orgName}</p>
     </header>
-    <div className="mb-5 border-l-4 border-ochre bg-ochre-soft p-4 text-[12px] leading-relaxed">Prototype: tautan ini memuat data surat di URL dan balasan dikirim melalui aplikasi email. Jangan gunakan untuk data rahasia/operasional.</div>
+    <div className="mb-5 border-l-4 border-ochre bg-ochre-soft p-4 text-[12px] leading-relaxed">Mode uji coba: setelah dikirim, halaman langsung kembali ke inbox TPOA pada browser/perangkat yang sama. Jangan gunakan untuk data rahasia/operasional.</div>
     <section className="glass mb-5 max-w-3xl p-5">
       <h2 className="font-display text-xl">Surat rekomendasi dari TPOA</h2>
       <dl className="mt-4 grid gap-3 text-[13px]">
@@ -174,10 +170,9 @@ function PartnerApprovalForm({ invitation }: { invitation: RecommendationInvitat
         <Field label={decision === "setuju" ? "Isi surat persetujuan" : "Alasan penolakan"} wide><textarea className={field} rows={7} value={statement} onChange={(event) => setStatement(event.target.value)} /></Field>
       </div>
       <div className="mt-4 flex flex-wrap gap-3">
-        <button type="button" disabled={!canSubmit} onClick={sendToTpoa} className="rounded-md bg-forest-deep px-5 py-2.5 text-[14px] font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">Siapkan email balasan ke TPOA</button>
+        <button type="button" disabled={!canSubmit} onClick={sendToTpoa} className="rounded-md bg-forest-deep px-5 py-2.5 text-[14px] font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">Kirim persetujuan ke TPOA</button>
         <button type="button" onClick={() => window.print()} className="rounded-md border border-primary/35 px-5 py-2.5 text-[14px] font-semibold text-primary">Cetak surat persetujuan</button>
       </div>
-      {submitted && <p role="status" className="mt-3 text-[13px] text-forest-deep">Balasan disiapkan untuk dikirim melalui aplikasi email.</p>}
     </section>
     <div id="print-area" className="print-only" style={{ fontFamily: "Georgia, serif", color: "#000" }}>
       <header style={{ textAlign: "center", borderBottom: "2px solid #000", paddingBottom: 8, marginBottom: 20 }}><strong>{invitation.partnerName}</strong><div>Surat Persetujuan Calon K/L Mitra</div></header>
@@ -216,8 +211,8 @@ function PartnerApprovalInbox({ incomingSubmission }: { incomingSubmission: Part
     </header>
     <div className="mb-5 max-w-xl"><Field label="Pilih INGO"><select className={field} value={org.id} onChange={(event) => setOrgId(event.target.value)}>{initialOrgs.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></Field></div>
     <section className="glass max-w-3xl p-5">
-      <h2 className="font-display text-xl">Balasan email dari calon K/L</h2>
-      <p className="mt-2 text-[13px] leading-relaxed text-muted">Unggah PDF persetujuan bertanda tangan yang diterima melalui email resmi TPOA. Setelah pengirim diverifikasi, status persetujuan otomatis menjadi dasar penerbitan izin prinsip sementara.</p>
+      <h2 className="font-display text-xl">Balasan calon K/L dari formulir tautan</h2>
+      <p className="mt-2 text-[13px] leading-relaxed text-muted">Hasil formulir dari link muncul di sini otomatis pada browser yang sama. Unggah PDF bertanda tangan untuk arsip; verifikasi pengirim tetap dilakukan petugas.</p>
       <div className="mt-4 grid gap-4">
         <Field label="Alamat email pengirim K/L"><input className={field} type="email" value={record.senderEmail} onChange={(event) => setRecord((current) => ({ ...current, senderEmail: event.target.value, verifiedByTpoa: false }))} placeholder="nama@kementerian.go.id" /></Field>
         <Field label="Lampiran PDF persetujuan"><input className={field} type="file" accept="application/pdf,.pdf" onChange={(event) => { void receive(event.target.files?.[0]); event.target.value = "" }} /></Field>
@@ -244,7 +239,7 @@ function PartnerApprovalInbox({ incomingSubmission }: { incomingSubmission: Part
       {approval.message && <p role="status" className="mt-3 text-[12px] text-amber-800">{approval.message}</p>}
       {approval.file && <label className="mt-4 flex items-start gap-3 text-[13px] leading-relaxed"><input className="mt-1" type="checkbox" checked={record.verifiedByTpoa} onChange={(event) => setRecord((current) => ({ ...current, verifiedByTpoa: event.target.checked }))} /><span>Saya telah mencocokkan alamat pengirim dengan email resmi calon K/L dan memeriksa dokumen persetujuannya.</span></label>}
       {!record.senderEmail.includes("@") && <p className="mt-2 text-[12px] text-amber-800">Isi alamat pengirim sebelum menandai persetujuan terverifikasi.</p>}
-      <p className="mt-4 border-t border-slate-300/70 pt-3 text-[12px] text-muted">Prototype: respons formulir tersimpan di browser saat formulir dan inbox dibuka pada perangkat yang sama. Dari email di perangkat lain, buka tautan impor di badan email. Email dan identitas pengirim tetap perlu diperiksa petugas.</p>
+      <p className="mt-4 border-t border-slate-300/70 pt-3 text-[12px] text-muted">Mode uji coba: pengiriman langsung bekerja pada browser/perangkat yang sama. Untuk perangkat berbeda diperlukan backend bersama. Petugas tetap harus memeriksa identitas K/L sebelum mengesahkan balasan.</p>
     </section>
     <div className="mt-5 flex flex-wrap gap-4"><a href="#/surat/rekomendasi-kl" className="font-semibold text-primary underline underline-offset-4">Kembali ke surat rekomendasi TPOA</a><a href="#/surat/izin-prinsip-sementara" className="font-semibold text-primary underline underline-offset-4">Buka izin prinsip sementara</a></div>
   </div>
