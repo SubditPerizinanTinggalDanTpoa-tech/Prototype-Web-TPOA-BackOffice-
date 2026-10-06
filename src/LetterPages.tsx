@@ -359,8 +359,8 @@ function LetterDraft({ letterType, orgId, setOrgId }: { letterType: LetterType; 
           {saved && <span role="status" className="text-[13px] text-forest-deep">Draft tersimpan di browser ini.</span>}
         </div>
         {letterType === "rekomendasi-kl" && invitationLink && <div className="col-span-2 flex flex-wrap items-center justify-between gap-3 border-t border-slate-300/70 pt-3 max-[700px]:col-span-1">
-          <div><div className="text-[13px] font-semibold text-ink">Tautan khusus calon mitra</div><p className="mt-1 text-[12px] text-muted">Kirim melalui email resmi atau salin untuk dibagikan.</p></div>
-          <div className="flex flex-wrap gap-2"><a href={invitationLink} target="_blank" rel="noreferrer" className="rounded-md border border-primary/35 px-4 py-2 text-[13px] font-semibold text-primary">Buka formulir</a><button type="button" onClick={copyInvitationLink} className="rounded-md border border-slate-300/70 px-4 py-2 text-[13px] font-semibold text-ink">{invitationCopied ? "Tautan tersalin" : "Salin tautan"}</button></div>
+          <div><div className="text-[13px] font-semibold text-ink">Tautan persetujuan calon mitra K/L</div><p className="mt-1 text-[12px] text-muted">Bagikan tautan khusus ini kepada calon mitra K/L.</p></div>
+          <div className="flex flex-wrap gap-2"><a href={invitationLink} target="_blank" rel="noreferrer" className="rounded-md border border-primary/35 px-4 py-2 text-[13px] font-semibold text-primary">Buka formulir K/L</a><button type="button" onClick={copyInvitationLink} className="rounded-md border border-slate-300/70 px-4 py-2 text-[13px] font-semibold text-ink">{invitationCopied ? "Tautan tersalin" : "Salin tautan K/L"}</button></div>
         </div>}
       </section>
       <div id="print-area" className="print-only" style={{ fontFamily: "Georgia, serif", color: "#000" }}>
