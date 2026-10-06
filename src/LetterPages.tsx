@@ -280,10 +280,12 @@ function LetterDraft({ letterType, orgId, setOrgId }: { letterType: LetterType; 
   })
   const [annex, setAnnex] = useLocal(`tpoa:tpoa-annex:${org.id}`, `LAMPIRAN TPOA\n\nNama INGO: ${org.name}\nCalon K/L mitra: ${decision?.recipient ?? org.kl}\nNomor surat: [isi nomor]\nMasa berlaku: [isi masa berlaku]\n\nPersetujuan ini berlaku sesuai ketentuan TPOA.`)
   const [saved, setSaved] = useState(false)
+  const [invitationCopied, setInvitationCopied] = useState(false)
   const approvalMailSubject = `Permohonan persetujuan kerja sama ${org.name}`
   const invitationLink = invitation ? publicPortalLink(`invitation=${encodeURIComponent(encodePortalPayload(invitation))}`) : ""
   const sendInvitation = () => {
     if (!partnerEmail.includes("@")) return
+    setInvitationCopied(false)
     const nextInvitation: RecommendationInvitation = {
       id: globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`,
       orgId: org.id,
@@ -299,6 +301,15 @@ function LetterDraft({ letterType, orgId, setOrgId }: { letterType: LetterType; 
     const directLink = publicPortalLink(`invitation=${encodeURIComponent(encodePortalPayload(nextInvitation))}`)
     const mailBody = `Yth. ${nextInvitation.partnerName},\n\nTPOA menyampaikan surat rekomendasi ${nextInvitation.orgName} dengan nomor ${nextInvitation.number}. Silakan buka tautan khusus berikut untuk membaca surat dan mengisi persetujuan dari tim K/L Anda:\n\n${directLink}\n\nSetelah formulir dikirim, aplikasi email akan menyiapkan balasan untuk reg.ingo@kemlu.go.id.\n\nHormat kami,\nTim Penilai Organisasi Asing (TPOA)\nKementerian Luar Negeri Republik Indonesia`
     window.location.href = `mailto:${partnerEmail}?subject=${encodeURIComponent(approvalMailSubject)}&body=${encodeURIComponent(mailBody)}`
+  }
+  const copyInvitationLink = async () => {
+    try {
+      await navigator.clipboard.writeText(invitationLink)
+      setInvitationCopied(true)
+      window.setTimeout(() => setInvitationCopied(false), 2200)
+    } catch {
+      setInvitationCopied(false)
+    }
   }
   const update = (key: keyof typeof draft, value: string) => {
     setDraft((current) => ({ ...current, [key]: value }))
@@ -347,7 +358,10 @@ function LetterDraft({ letterType, orgId, setOrgId }: { letterType: LetterType; 
           {letterType === "rekomendasi-kl" && <button type="button" disabled={!partnerEmail.includes("@")} onClick={sendInvitation} className="rounded-md border border-primary/35 px-5 py-2.5 text-[14px] font-semibold text-primary disabled:cursor-not-allowed disabled:opacity-50">Siapkan email tautan persetujuan</button>}
           {saved && <span role="status" className="text-[13px] text-forest-deep">Draft tersimpan di browser ini.</span>}
         </div>
-        {letterType === "rekomendasi-kl" && invitationLink && <div className="col-span-2 break-all border-t border-slate-300/70 pt-3 text-[12px] text-muted max-[700px]:col-span-1">Tautan khusus formulir K/L: <a href={invitationLink} target="_blank" rel="noreferrer" className="font-semibold text-primary underline">Buka formulir mitra</a><div className="mt-1">{invitationLink}</div></div>}
+        {letterType === "rekomendasi-kl" && invitationLink && <div className="col-span-2 flex flex-wrap items-center justify-between gap-3 border-t border-slate-300/70 pt-3 max-[700px]:col-span-1">
+          <div><div className="text-[13px] font-semibold text-ink">Tautan khusus calon mitra</div><p className="mt-1 text-[12px] text-muted">Kirim melalui email resmi atau salin untuk dibagikan.</p></div>
+          <div className="flex flex-wrap gap-2"><a href={invitationLink} target="_blank" rel="noreferrer" className="rounded-md border border-primary/35 px-4 py-2 text-[13px] font-semibold text-primary">Buka formulir</a><button type="button" onClick={copyInvitationLink} className="rounded-md border border-slate-300/70 px-4 py-2 text-[13px] font-semibold text-ink">{invitationCopied ? "Tautan tersalin" : "Salin tautan"}</button></div>
+        </div>}
       </section>
       <div id="print-area" className="print-only" style={{ fontFamily: "Georgia, serif", color: "#000" }}>
         <div style={{ textAlign: "center", borderBottom: "2px solid #000", paddingBottom: 8, marginBottom: 16 }}>
