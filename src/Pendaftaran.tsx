@@ -34,7 +34,7 @@ Hormat kami,
 Ketua TPOA`
 }
 
-export function Pendaftaran({ org }: { org: Org }) {
+export function Pendaftaran({ org, standaloneLetter = false }: { org: Org; standaloneLetter?: boolean }) {
   const d = detailOf(org)
   const P = `p:${org.id}:`
   const klDefault = klList.includes(org.kl) ? org.kl : klList[0]
@@ -43,7 +43,7 @@ export function Pendaftaran({ org }: { org: Org }) {
   const [viewDoc, setViewDoc] = useState<DocRef | null>(null)
 
   const [reached, setReached] = useLocal(P + "reached", 0)
-  const [view, setView] = useLocal(P + "view", 0)
+  const [view, setView] = useLocal(P + (standaloneLetter ? "suratView" : "view"), standaloneLetter ? 4 : 0)
   const go = (i: number) => {
     setReached((r) => Math.max(r, i))
     setView(i)
@@ -254,7 +254,7 @@ export function Pendaftaran({ org }: { org: Org }) {
         <pre style={{ whiteSpace: "pre-wrap", fontFamily: "inherit", marginTop: 16, lineHeight: 1.6 }}>{body}</pre>
       </div>
 
-      <ol className="flex overflow-x-auto border-b border-slate-300/60">
+      {!standaloneLetter && <ol className="flex overflow-x-auto border-b border-slate-300/60">
         {stages.map((s, i) => {
           const st = statusOf(i)
           const bad = rejected && i === 3
@@ -274,7 +274,7 @@ export function Pendaftaran({ org }: { org: Org }) {
             </li>
           )
         })}
-      </ol>
+      </ol>}
 
       <div className="mt-10 max-w-5xl">
         {/* 1 · PENGAJUAN AWAL */}

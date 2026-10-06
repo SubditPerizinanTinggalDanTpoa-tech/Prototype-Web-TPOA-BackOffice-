@@ -14,7 +14,7 @@ import {
   type Person,
 } from "./Ingo"
 
-const initialOrgs: Org[] = [
+export const initialOrgs: Org[] = [
   {
     id: "cf",
     name: "ChildFund Organization",
@@ -96,7 +96,7 @@ const person = (
 })
 
 // Data personil dummy. Pada ChildFund sengaja ada baris yang belum lengkap sebagai contoh.
-const initialPersonnel: Record<string, Person[]> = {
+export const initialPersonnel: Record<string, Person[]> = {
   cf: [
     person(
       1,
@@ -429,7 +429,7 @@ const tabs = [
 const T_PERSONIL = 4
 
 export default function IngoDashboard() {
-  const [orgs, setOrgs] = useState(initialOrgs)
+  const [orgs, setOrgs] = useLocal<Org[]>("tpoa:dashboard-ingos", initialOrgs)
   const [personnel, setPersonnel] = useLocal<Record<string, Person[]>>("tpoa:personil", initialPersonnel)
   const [sel, setSel] = useState<string | null>(null)
   const [editing, setEditing] = useState<string | null>(null)

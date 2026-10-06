@@ -51,6 +51,48 @@ export function writeLS(key: string, v: unknown) {
   }
 }
 
+export type StoredLocalFile = { name: string; type: string; size: number; blob: Blob; updatedAt: number }
+
+function openFileDatabase() {
+  return new Promise<IDBDatabase>((resolve, reject) => {
+    const request = indexedDB.open("tpoa-device-files", 1)
+    request.onupgradeneeded = () => request.result.createObjectStore("files")
+    request.onsuccess = () => resolve(request.result)
+    request.onerror = () => reject(request.error)
+  })
+}
+
+export async function saveDeviceFile(key: string, file: File) {
+  const database = await openFileDatabase()
+  await new Promise<void>((resolve, reject) => {
+    const transaction = database.transaction("files", "readwrite")
+    transaction.objectStore("files").put({ name: file.name, type: file.type, size: file.size, blob: file, updatedAt: Date.now() }, key)
+    transaction.oncomplete = () => resolve()
+    transaction.onerror = () => reject(transaction.error)
+  })
+  database.close()
+}
+
+export async function readDeviceFile(key: string): Promise<StoredLocalFile | null> {
+  const database = await openFileDatabase()
+  const stored = await new Promise<StoredLocalFile | undefined>((resolve, reject) => {
+    const request = database.transaction("files", "readonly").objectStore("files").get(key)
+    request.onsuccess = () => resolve(request.result as StoredLocalFile | undefined)
+    request.onerror = () => reject(request.error)
+  })
+  database.close()
+  return stored ?? null
+}
+
+export async function downloadDeviceFile(file: StoredLocalFile) {
+  const url = URL.createObjectURL(file.blob)
+  const anchor = document.createElement("a")
+  anchor.href = url
+  anchor.download = file.name
+  anchor.click()
+  window.setTimeout(() => URL.revokeObjectURL(url), 60000)
+}
+
 let ver = 0
 const listeners = new Set<() => void>()
 export const bump = () => {

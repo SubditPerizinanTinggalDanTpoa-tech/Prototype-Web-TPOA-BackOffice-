@@ -75,6 +75,18 @@ button:focus-visible {
 }
 
 @layer components {
+  .dashboard-expand {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition: grid-template-rows 280ms ease, opacity 220ms ease;
+  }
+
+  .dashboard-expand.is-open {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+
   /* Lapisan terang di atas foto gedung Kemlu */
   .kemlu-overlay {
     background: linear-gradient(
@@ -146,6 +158,11 @@ button:focus-visible {
   display: none;
 }
 
+@page {
+  size: A4;
+  margin: 18mm;
+}
+
 @media print {
   body * {
     visibility: hidden;
@@ -156,10 +173,64 @@ button:focus-visible {
   }
   #print-area {
     display: block !important;
-    position: absolute;
+    position: fixed;
     left: 0;
     top: 0;
     width: 100%;
-    padding: 24px;
+    padding: 0;
+  }
+}
+
+.theme-dark {
+  --color-paper: #101923;
+  --color-card: #172431;
+  --color-ink: #e7edf3;
+  --color-muted: #a2b0bc;
+  --color-line: #354653;
+}
+
+.font-sora {
+  font-family: var(--font-display);
+}
+
+.accent-blue {
+  --color-forest: #2563EB;
+  --color-forest-deep: #1D4ED8;
+  --color-forest-soft: rgba(37, 99, 235, 0.12);
+  --color-primary: #0F766E;
+  --color-primary-light: #CCFBF1;
+}
+
+.theme-dark .kemlu-overlay {
+  background: linear-gradient(135deg, rgba(12, 20, 29, 0.91), rgba(16, 30, 41, 0.88) 55%, rgba(18, 39, 47, 0.84));
+}
+
+.theme-dark .hud-grid {
+  background-image:
+    linear-gradient(rgba(94, 177, 169, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(94, 177, 169, 0.055) 1px, transparent 1px);
+}
+
+.theme-dark .glass {
+  background: rgba(17, 31, 42, 0.78);
+  border-color: rgba(184, 206, 217, 0.18);
+  box-shadow: 0 12px 36px -18px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.theme-dark [class*="bg-white/"] {
+  background-color: rgba(23, 36, 49, 0.82);
+}
+
+.theme-dark input,
+.theme-dark select,
+.theme-dark textarea {
+  color: var(--color-ink);
+  background-color: rgba(17, 31, 42, 0.88);
+  border-color: rgba(184, 206, 217, 0.28);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-expand {
+    transition: none;
   }
 }

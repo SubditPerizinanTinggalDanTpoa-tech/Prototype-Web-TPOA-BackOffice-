@@ -16,9 +16,10 @@ type Props = {
   source: Person[] // data yang diisi pihak INGO
   onChange: (rows: Person[]) => void
   onVerified: () => void
+  showWorkflowValidation?: boolean
 }
 
-export function Personil({ org, rows, source, onChange, onVerified }: Props) {
+export function Personil({ org, rows, source, onChange, onVerified, showWorkflowValidation = true }: Props) {
   const ref = { id: org.id, name: org.name }
   const { node, confirm } = useConfirm()
   const [draft, setDraft] = useState<Person[] | null>(null)
@@ -129,11 +130,11 @@ export function Personil({ org, rows, source, onChange, onVerified }: Props) {
       </Section>
       <div className="flex flex-wrap items-center gap-3">
         {editing && <Btn onClick={add}>Tambah personil</Btn>}
-        {!editing && <Btn variant="ghost" disabled={rows.length === 0} onClick={validateAll}>Validasi semua yang lengkap</Btn>}
-        <Btn disabled={!allValid} onClick={() => confirm("Verifikasi data personil dan kembali ke Data Pengajuan?", <>{rows.length} personil sudah lengkap dan divalidasi. Sistem akan membuka tahap Verifikasi pada tab Pendaftaran Awal. Tanggal: {fmt(new Date())}.</>, "Ya, sudah sesuai", () => { markPersonilOk(org.id); addLog(ref, "Persetujuan", `Data personil ${rows.length} orang diverifikasi TPOA`); onVerified() })}>
+        {showWorkflowValidation && !editing && <Btn variant="ghost" disabled={rows.length === 0} onClick={validateAll}>Validasi semua yang lengkap</Btn>}
+        {showWorkflowValidation && <Btn disabled={!allValid} onClick={() => confirm("Verifikasi data personil dan kembali ke Data Pengajuan?", <>{rows.length} personil sudah lengkap dan divalidasi. Sistem akan membuka tahap Verifikasi pada tab Pendaftaran Awal. Tanggal: {fmt(new Date())}.</>, "Ya, sudah sesuai", () => { markPersonilOk(org.id); addLog(ref, "Persetujuan", `Data personil ${rows.length} orang diverifikasi TPOA`); onVerified() })}>
           Verifikasi sesuai · kembali ke Data Pengajuan
-        </Btn>
-        {!allValid && !editing && <span className="text-[13px] text-muted">Seluruh personil harus lengkap dan tervalidasi.</span>}
+        </Btn>}
+        {showWorkflowValidation && !allValid && !editing && <span className="text-[13px] text-muted">Seluruh personil harus lengkap dan tervalidasi.</span>}
       </div>
     </div>
   )
