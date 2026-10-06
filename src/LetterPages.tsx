@@ -145,34 +145,39 @@ function PartnerApprovalForm({ invitation }: { invitation: RecommendationInvitat
     window.location.hash = `/surat/persetujuan-kl?submission=${payload}`
   }
   if (!initialOrgs.some((org) => org.id === invitation.orgId) || Date.now() - invitation.issuedAt > 14 * 24 * 60 * 60 * 1000) return <section className="glass p-5"><h1 className="font-display text-xl">Tautan tidak berlaku</h1><p className="mt-2 text-[13px] text-muted">Undangan tidak ditemukan atau sudah kedaluwarsa. Hubungi TPOA untuk meminta tautan baru.</p></section>
-  return <div>
+  return <div className="mx-auto max-w-4xl">
     <header className="mb-6 border-b border-slate-300/70 pb-5">
       <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-forest-deep">Formulir Calon K/L · Balasan TPOA</div>
       <h1 className="mt-2 font-display text-[32px] leading-tight">Persetujuan Surat Rekomendasi</h1>
       <p className="mt-2 text-[13px] text-muted">Untuk {invitation.partnerName} · INGO: {invitation.orgName}</p>
     </header>
     <div className="mb-5 border-l-4 border-ochre bg-ochre-soft p-4 text-[12px] leading-relaxed">Mode uji coba: setelah dikirim, halaman langsung kembali ke inbox TPOA pada browser/perangkat yang sama. Jangan gunakan untuk data rahasia/operasional.</div>
-    <section className="glass mb-5 max-w-3xl p-5">
-      <h2 className="font-display text-xl">Surat rekomendasi dari TPOA</h2>
+    <section className="mb-5 rounded-md border border-slate-300/70 bg-white/65 p-5">
+      <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted">Dokumen yang ditinjau</div>
+      <h2 className="mt-1 font-display text-xl">Surat rekomendasi dari TPOA</h2>
       <dl className="mt-4 grid gap-3 text-[13px]">
         <div><dt className="font-semibold">Nomor surat</dt><dd>{invitation.number}</dd></div>
         <div><dt className="font-semibold">Perihal</dt><dd>{invitation.subject}</dd></div>
         <div><dt className="font-semibold">Isi surat</dt><dd className="mt-1 whitespace-pre-wrap leading-relaxed">{invitation.body}</dd></div>
       </dl>
     </section>
-    <section className="glass max-w-3xl p-5">
-      <h2 className="font-display text-xl">Tanggapan resmi calon K/L</h2>
-      <div className="mt-4 grid gap-4">
+    <section className="glass max-w-4xl overflow-hidden p-0">
+      <header className="border-b border-slate-300/70 bg-white/45 px-5 py-4">
+        <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-forest-deep">Formulir persetujuan · Calon K/L</div>
+        <h2 className="mt-1 font-display text-xl">Tanggapan resmi calon K/L</h2>
+        <p className="mt-1 text-[12px] text-muted">Lengkapi data pejabat dan keputusan, lalu kirim hasilnya ke TPOA.</p>
+      </header>
+      <div className="grid grid-cols-2 gap-x-5 gap-y-4 p-5 max-[700px]:grid-cols-1">
         <Field label="Email dinas untuk balasan"><input className={field} type="email" value={invitation.partnerEmail} readOnly /></Field>
         <Field label="Nama pejabat penandatangan"><input className={field} value={signerName} onChange={(event) => setSignerName(event.target.value)} autoComplete="name" /></Field>
         <Field label="Jabatan"><input className={field} value={signerTitle} onChange={(event) => setSignerTitle(event.target.value)} /></Field>
         <Field label="Keputusan"><select className={field} value={decision} onChange={(event) => { const next = event.target.value as "setuju" | "tolak"; setDecision(next); setStatement(next === "setuju" ? `Kami menyetujui surat rekomendasi TPOA nomor ${invitation.number} perihal ${invitation.subject} untuk kerja sama ${invitation.orgName}.` : "") }}><option value="setuju">Menyetujui</option><option value="tolak">Menolak</option></select></Field>
         <Field label={decision === "setuju" ? "Isi surat persetujuan" : "Alasan penolakan"} wide><textarea className={field} rows={7} value={statement} onChange={(event) => setStatement(event.target.value)} /></Field>
       </div>
-      <div className="mt-4 flex flex-wrap gap-3">
+      <footer className="flex flex-wrap gap-3 border-t border-slate-300/70 bg-white/45 px-5 py-4">
         <button type="button" disabled={!canSubmit} onClick={sendToTpoa} className="rounded-md bg-forest-deep px-5 py-2.5 text-[14px] font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">Kirim persetujuan ke TPOA</button>
         <button type="button" onClick={() => window.print()} className="rounded-md border border-primary/35 px-5 py-2.5 text-[14px] font-semibold text-primary">Cetak surat persetujuan</button>
-      </div>
+      </footer>
     </section>
     <div id="print-area" className="print-only" style={{ fontFamily: "Georgia, serif", color: "#000" }}>
       <header style={{ textAlign: "center", borderBottom: "2px solid #000", paddingBottom: 8, marginBottom: 20 }}><strong>{invitation.partnerName}</strong><div>Surat Persetujuan Calon K/L Mitra</div></header>
