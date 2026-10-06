@@ -56,11 +56,15 @@ const currentRoute = () => window.location.hash.slice(1).split("?")[0] || "/"
 
 export default function App() {
   const [route, setRoute] = useState(currentRoute)
+  const [routeHash, setRouteHash] = useState(window.location.hash)
   const [theme, setTheme] = useLocal<"light" | "dark">("tpoa:theme", "light")
   const [fontStyle, setFontStyle] = useLocal<"manrope" | "sora">("tpoa:font-style", "manrope")
   const [accentColor, setAccentColor] = useLocal<"teal" | "blue">("tpoa:accent-color", "teal")
   useEffect(() => {
-    const syncRoute = () => setRoute(currentRoute())
+    const syncRoute = () => {
+      setRoute(currentRoute())
+      setRouteHash(window.location.hash)
+    }
     window.addEventListener("hashchange", syncRoute)
     return () => window.removeEventListener("hashchange", syncRoute)
   }, [])
@@ -138,12 +142,12 @@ export default function App() {
           {route === "/pusat-informasi" && <InformationCenterPage />}
           {(route === "/registrasi-ingo" || route === "/registrasi-ingo/permohonan") && <RegistrationIngoPage stage={"permohonan" satisfies RegistrationStage} />}
           {route === "/registrasi-ingo/verifikasi" && <RegistrationIngoPage stage="verifikasi" />}
-          {route === "/registrasi-ingo/persetujuan-ketua" && <ChairApprovalPage />}
+          {route === "/registrasi-ingo/persetujuan-ketua" && <ChairApprovalPage key={routeHash} />}
           {route === "/registrasi-ingo/pertimbangan" && <RegistrationIngoPage stage="pertimbangan" />}
           {route === "/registrasi-ingo/perpanjangan-msp" && <MspExtensionPage />}
           {route === "/registrasi-yayasan" && <RegistrationYayasan />}
           {letterRoutes[route] && <LetterEditorPage letterType={letterRoutes[route]} />}
-          {route === "/surat/persetujuan-kl" && <PartnerApprovalPage />}
+          {route === "/surat/persetujuan-kl" && <PartnerApprovalPage key={routeHash} />}
           {route === "/surat/perpanjangan-msp" && <MspExtensionPage />}
                     {route === "/rapat-pleno" && <PlenaryPlannerPage />}
           {!knownRoutes.has(route) && <DashboardHome />}
