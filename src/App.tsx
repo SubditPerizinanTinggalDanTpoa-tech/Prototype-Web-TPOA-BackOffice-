@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { DashboardHome, InformationCenterPage, RegistrationYayasan, SettingsPage } from "./HomeDashboard"
 import { ChairApprovalPage, MspExtensionPage, RegistrationIngoPage, type RegistrationStage } from "./RegistrationIngoPages"
-import { LetterEditorPage, type LetterType } from "./LetterPages"
+import { LetterEditorPage, PartnerApprovalPage, type LetterType } from "./LetterPages"
 import { PlenaryPlannerPage } from "./WorkflowPages"
 import { PersonnelPage } from "./PersonnelPage"
 import { Clock, useLocal } from "./store"
@@ -23,6 +23,7 @@ const menuGroups = [
   ] },
   { code: "03", label: "Surat", path: "/surat/rekomendasi-kl", active: (route: string) => route.startsWith("/surat/"), links: [
     { path: "/surat/rekomendasi-kl", label: "Rekomendasi calon K/L mitra" },
+    { path: "/surat/persetujuan-kl", label: "Persetujuan masuk dari calon K/L" },
     { path: "/surat/izin-prinsip-sementara", label: "Izin prinsip sementara" },
     { path: "/surat/rekomendasi-msp", label: "Rekomendasi penandatanganan MSP" },
     { path: "/surat/izin-prinsip-tetap", label: "Izin prinsip tetap" },
@@ -142,6 +143,7 @@ export default function App() {
           {route === "/registrasi-ingo/perpanjangan-msp" && <MspExtensionPage />}
           {route === "/registrasi-yayasan" && <RegistrationYayasan />}
           {letterRoutes[route] && <LetterEditorPage letterType={letterRoutes[route]} />}
+          {route === "/surat/persetujuan-kl" && <PartnerApprovalPage />}
           {route === "/surat/perpanjangan-msp" && <MspExtensionPage />}
                     {route === "/rapat-pleno" && <PlenaryPlannerPage />}
           {!knownRoutes.has(route) && <DashboardHome />}
